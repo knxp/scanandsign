@@ -3,8 +3,7 @@ export const exampleSignatures = [
     // Row 1
     {
         id: 1,
-        x: 3,
-        y: 3,
+        gridPosition: { col: 0, row: 0 },
         width: 75,
         height: 50,
         color: 'red',
@@ -12,8 +11,7 @@ export const exampleSignatures = [
     },
     {
         id: 2,
-        x: 81,
-        y: 3,
+        gridPosition: { col: 1, row: 0 },
         width: 75,
         height: 50,
         color: 'blue',
@@ -21,8 +19,7 @@ export const exampleSignatures = [
     },
     {
         id: 3,
-        x: 159,
-        y: 3,
+        gridPosition: { col: 2, row: 0 },
         width: 75,
         height: 50,
         color: 'green',
@@ -31,8 +28,7 @@ export const exampleSignatures = [
     // Row 2
     {
         id: 4,
-        x: 3,
-        y: 56,
+        gridPosition: { col: 0, row: 1 },
         width: 75,
         height: 50,
         color: 'yellow',
@@ -40,8 +36,7 @@ export const exampleSignatures = [
     },
     {
         id: 5,
-        x: 159,
-        y: 56,
+        gridPosition: { col: 2, row: 1 },
         width: 75,
         height: 50,
         color: 'pink',
@@ -50,8 +45,7 @@ export const exampleSignatures = [
     // Row 3
     {
         id: 6,
-        x: 81,
-        y: 109,
+        gridPosition: { col: 1, row: 2 },
         width: 75,
         height: 50,
         color: 'purple',
@@ -59,8 +53,7 @@ export const exampleSignatures = [
     },
     {
         id: 7,
-        x: 237,
-        y: 109,
+        gridPosition: { col: 3, row: 2 },
         width: 75,
         height: 50,
         color: 'red',

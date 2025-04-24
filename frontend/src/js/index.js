@@ -1,5 +1,6 @@
-// Import example signatures
+// Import example signatures and grid system
 import { exampleSignatures } from '../data/exampleSignatures.js';
+import { GridCoordinates, createGridReference } from './gridCoordinates.js';
 
 // Cell dimensions
 const CELL_WIDTH = 78;  // 75 + 3
@@ -15,7 +16,7 @@ function calculateGridSize() {
     
     return {
         cols: Math.max(cols, 12), // Minimum 12 columns
-        rows: Math.max(rows, 36)  // Increased to 36 rows for better vertical coverage
+        rows: Math.max(rows, 36)  // Minimum 36 rows
     };
 }
 
@@ -23,6 +24,9 @@ function calculateGridSize() {
 const gridSize = calculateGridSize();
 const BOARD_WIDTH = gridSize.cols * CELL_WIDTH;
 const BOARD_HEIGHT = gridSize.rows * CELL_HEIGHT;
+
+// Initialize grid coordinates
+const gridCoordinates = new GridCoordinates(gridSize.cols, gridSize.rows, CELL_WIDTH, CELL_HEIGHT);
 
 // Initialize OpenSeadragon viewer
 const viewer = OpenSeadragon({
@@ -119,15 +123,25 @@ function createGridTileSource() {
             
             // Draw signatures in this tile
             exampleSignatures.forEach(signature => {
-                const sigX = signature.x - startX;
-                const sigY = signature.y - startY;
+                const { x, y } = gridCoordinates.getCenteredSignaturePosition(
+                    signature.gridPosition.col, 
+                    signature.gridPosition.row,
+                    signature.width,
+                    signature.height
+                );
+                const sigX = x - startX;
+                const sigY = y - startY;
                 
                 // Only draw if the signature is in this tile
                 if (sigX >= 0 && sigX < tileSize && sigY >= 0 && sigY < tileSize) {
+                    // Draw the box with a subtle outline
                     ctx.fillStyle = colorMap[signature.color];
+                    ctx.strokeStyle = '#e0e0e0';
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.roundRect(sigX, sigY, signature.width, signature.height, 4);
                     ctx.fill();
+                    ctx.stroke();
                 }
             });
             
