@@ -63,21 +63,148 @@ const colorMap = {
     purple: '#cc5de8'
 };
 
-// Create a colored box image
-function createColoredBoxImage(color) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 75;
-    canvas.height = 50;
-    const ctx = canvas.getContext('2d');
-    
-    // Draw the box
-    ctx.fillStyle = colorMap[color];
-    ctx.beginPath();
-    ctx.roundRect(0, 0, 75, 50, 4);
-    ctx.fill();
-    
-    return canvas.toDataURL();
+// Initialize SignaturePad
+const canvas = document.getElementById('signature-pad');
+const signaturePad = new SignaturePad(canvas, {
+    backgroundColor: 'rgb(255, 255, 255)',
+    penColor: 'rgb(0, 0, 0)'
+});
+
+// Modal elements
+const welcomeModal = document.getElementById('welcome-modal');
+const signatureModal = document.getElementById('signature-modal');
+const yesButton = document.getElementById('yes-button');
+const noButton = document.getElementById('no-button');
+const clearButton = document.getElementById('clear-signature');
+const submitButton = document.getElementById('submit-signature');
+const colorOptions = document.querySelectorAll('.color-option');
+
+// Selected color
+let selectedColor = 'red';
+
+// Handle signature pad resizing
+function resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext('2d').scale(ratio, ratio);
+    signaturePad.clear();
 }
+
+// Show modal
+function showModal(modal) {
+    modal.classList.add('active');
+}
+
+// Hide modal
+function hideModal(modal) {
+    modal.classList.remove('active');
+}
+
+// Handle color selection
+function selectColor(color) {
+    selectedColor = color;
+    colorOptions.forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.color === color) {
+            option.classList.add('selected');
+        }
+    });
+    
+    // Update signature pad background color
+    const colorMap = {
+        red: 'rgb(255, 107, 107)',
+        blue: 'rgb(77, 171, 247)',
+        yellow: 'rgb(255, 212, 59)',
+        green: 'rgb(81, 207, 102)',
+        pink: 'rgb(247, 131, 172)',
+        purple: 'rgb(204, 93, 232)'
+    };
+    
+    // Save current signature data
+    const data = signaturePad.toData();
+    
+    // Update background color
+    signaturePad.backgroundColor = colorMap[color];
+    
+    // Restore signature data
+    signaturePad.fromData(data);
+}
+
+// Event listeners
+window.addEventListener('resize', resizeCanvas);
+
+// Welcome modal buttons
+yesButton.addEventListener('click', () => {
+    hideModal(welcomeModal);
+    showModal(signatureModal);
+    resizeCanvas();
+});
+
+noButton.addEventListener('click', () => {
+    hideModal(welcomeModal);
+});
+
+// Color options
+colorOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        selectColor(option.dataset.color);
+    });
+});
+
+// Signature controls
+clearButton.addEventListener('click', () => {
+    // Save current background color
+    const currentBg = signaturePad.backgroundColor;
+    
+    // Set white background
+    signaturePad.backgroundColor = 'rgb(255, 255, 255)';
+    
+    // Clear the signature
+    signaturePad.clear();
+    
+    // Restore the selected color background
+    const colorMap = {
+        red: 'rgb(255, 107, 107)',
+        blue: 'rgb(77, 171, 247)',
+        yellow: 'rgb(255, 212, 59)',
+        green: 'rgb(81, 207, 102)',
+        pink: 'rgb(247, 131, 172)',
+        purple: 'rgb(204, 93, 232)'
+    };
+    signaturePad.backgroundColor = colorMap[selectedColor];
+});
+
+submitButton.addEventListener('click', () => {
+    if (signaturePad.isEmpty()) {
+        alert('Please provide a signature first.');
+        return;
+    }
+
+    const signatureData = signaturePad.toDataURL();
+    const occupiedPositions = exampleSignatures.map(sig => sig.gridPosition);
+    const position = gridCoordinates.findBestPosition(occupiedPositions);
+
+    if (!position) {
+        alert('No space available for signatures');
+        return;
+    }
+
+    const signature = {
+        id: Date.now(),
+        gridPosition: position,
+        width: 75,
+        height: 50,
+        color: selectedColor,
+        timestamp: new Date().toISOString(),
+        data: signatureData
+    };
+
+    exampleSignatures.push(signature);
+    signaturePad.clear();
+    hideModal(signatureModal);
+    loadSignatures();
+});
 
 // Create a tile source for the grid
 function createGridTileSource() {
@@ -202,4 +329,6 @@ window.addEventListener('resize', function() {
 });
 
 // Initial setup
-loadSignatures(); 
+resizeCanvas();
+loadSignatures();
+showModal(welcomeModal); 
