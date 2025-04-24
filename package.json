@@ -1,0 +1,34 @@
+{
+  "name": "scanandsign",
+  "version": "1.0.0",
+  "description": "A digital signature board accessible via QR code on a T-shirt",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd frontend && npm start",
+    "start:backend": "cd backend && func start",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "build": "cd frontend && npm run build",
+    "deploy": "node scripts/deploy/deploy.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knxp/scanandsign.git"
+  },
+  "keywords": [
+    "qr-code",
+    "signature",
+    "azure",
+    "canvas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/knxp/scanandsign/issues"
+  },
+  "homepage": "https://github.com/knxp/scanandsign#readme",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  }
+} 

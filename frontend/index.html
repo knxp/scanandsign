@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan and Sign - Digital Signature Board</title>
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1.0/build/openseadragon/openseadragon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@4.2.1/dist/fp.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Signature Board</h1>
+            <p>Explore all the signatures from people who scanned the QR code.</p>
+        </header>
+
+        <main>
+            <div id="signature-board"></div>
+        </main>
+
+        <footer>
+            <p>Your signature is stored anonymously. No personal data is collected.</p>
+        </footer>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="modal">
+        <div class="modal-content">
+            <h2>Nice, you scanned my shirt!</h2>
+            <p>Want to sign your name with the others who've scanned?</p>
+            <div class="modal-buttons">
+                <button id="yes-button" class="yes-button">Yes, I'll sign!</button>
+                <button id="no-button" class="no-button">No, just show me the board</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signature Modal -->
+    <div id="signature-modal" class="modal">
+        <div class="modal-content">
+            <h2>Your Signature</h2>
+            <div class="signature-container">
+                <canvas id="signature-pad"></canvas>
+                <div class="color-options">
+                    <button class="color-option" data-color="red" style="background-color: #ff6b6b;"></button>
+                    <button class="color-option" data-color="blue" style="background-color: #4dabf7;"></button>
+                    <button class="color-option" data-color="yellow" style="background-color: #ffd43b;"></button>
+                    <button class="color-option" data-color="green" style="background-color: #51cf66;"></button>
+                    <button class="color-option" data-color="pink" style="background-color: #f783ac;"></button>
+                    <button class="color-option" data-color="purple" style="background-color: #cc5de8;"></button>
+                </div>
+                <div class="signature-controls">
+                    <button id="clear-signature">Clear</button>
+                    <button id="submit-signature">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/js/index.js"></script>
+</body>
+</html> 
