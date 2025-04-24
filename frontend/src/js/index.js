@@ -2,9 +2,9 @@
 import { exampleSignatures } from '../data/exampleSignatures.js';
 import { GridCoordinates, createGridReference } from './gridCoordinates.js';
 
-// Cell dimensions
-const CELL_WIDTH = 78;  // 75 + 3
-const CELL_HEIGHT = 53; // 50 + 3
+// Cell dimensions - increased by 20%
+const CELL_WIDTH = 94;  // 78 * 1.2
+const CELL_HEIGHT = 64; // 53 * 1.2
 
 // Color mapping
 const colorMap = {
@@ -21,12 +21,13 @@ function calculateGridSize() {
     const viewportWidth = window.innerWidth - 40; // Account for padding
     const viewportHeight = window.innerHeight - 160; // Account for header (100px) and padding (60px)
     
-    const cols = Math.floor(viewportWidth / CELL_WIDTH);
-    const rows = Math.floor(viewportHeight / CELL_HEIGHT);
+    // Calculate number of cells, then reduce by 20%
+    const cols = Math.floor((viewportWidth / CELL_WIDTH) * 0.8);
+    const rows = Math.floor((viewportHeight / CELL_HEIGHT) * 0.8);
     
     return {
-        cols: Math.max(cols, 12), // Minimum 12 columns
-        rows: Math.max(rows, 36)  // Minimum 36 rows
+        cols: Math.max(cols, 10), // Minimum 10 columns (reduced from 12)
+        rows: Math.max(rows, 29)  // Minimum 29 rows (reduced from 36)
     };
 }
 
@@ -110,6 +111,7 @@ function initializeApp() {
 
     // Selected color
     let selectedColor = 'red';
+    let hasSelectedColor = false; // Track if user has actively selected a color
 
     // Handle signature pad resizing
     function resizeCanvas() {
@@ -133,6 +135,7 @@ function initializeApp() {
     // Handle color selection
     function selectColor(color) {
         selectedColor = color;
+        hasSelectedColor = true; // Mark that user has selected a color
         colorOptions.forEach(option => {
             option.classList.remove('selected');
             if (option.dataset.color === color) {
@@ -182,6 +185,13 @@ function initializeApp() {
         // Clear the signature
         signaturePad.clear();
         
+        // Reset color selection
+        hasSelectedColor = false;
+        selectedColor = 'red';
+        colorOptions.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
         // Restore the selected color background
         signaturePad.backgroundColor = colorMap[selectedColor];
     });
@@ -189,6 +199,11 @@ function initializeApp() {
     submitButton.addEventListener('click', () => {
         if (signaturePad.isEmpty()) {
             alert('Please provide a signature first.');
+            return;
+        }
+
+        if (!hasSelectedColor) {
+            alert('Please select a background color for your signature.');
             return;
         }
 
@@ -204,8 +219,8 @@ function initializeApp() {
         const signature = {
             id: Date.now(),
             gridPosition: position,
-            width: 75,
-            height: 50,
+            width: 90,
+            height: 60,
             color: selectedColor,
             timestamp: new Date().toISOString(),
             data: signatureData
@@ -287,10 +302,10 @@ function initializeApp() {
                     if (sigX >= 0 && sigX < tileSize && sigY >= 0 && sigY < tileSize) {
                         // Draw the box with a subtle outline
                         ctx.fillStyle = colorMap[signature.color];
-                        ctx.strokeStyle = '#e0e0e0';
+                        ctx.strokeStyle = '#e0e0e0'; // Match grid line color
                         ctx.lineWidth = 1;
                         ctx.beginPath();
-                        ctx.roundRect(sigX, sigY, signature.width, signature.height, 4);
+                        ctx.rect(sigX, sigY, signature.width, signature.height); // Remove rounded corners
                         ctx.fill();
                         ctx.stroke();
 
