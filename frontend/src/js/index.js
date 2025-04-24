@@ -37,6 +37,26 @@ let BOARD_HEIGHT;
 let gridCoordinates;
 let viewer;
 
+// Function to find the next available spot in the grid
+function findNextAvailableSpot(occupiedPositions) {
+    // Start from the top-left and move right, then down
+    for (let row = 0; row < gridSize.rows; row++) {
+        for (let col = 0; col < gridSize.cols; col++) {
+            const position = { col, row };
+            
+            // Check if this position is already occupied
+            const isOccupied = occupiedPositions.some(pos => 
+                pos.col === position.col && pos.row === position.row
+            );
+            
+            if (!isOccupied) {
+                return position;
+            }
+        }
+    }
+    return null; // No available spots
+}
+
 // Initialize the application
 function initializeApp() {
     // Get grid dimensions
@@ -174,7 +194,7 @@ function initializeApp() {
 
         const signatureData = signaturePad.toDataURL();
         const occupiedPositions = exampleSignatures.map(sig => sig.gridPosition);
-        const position = gridCoordinates.findBestPosition(occupiedPositions);
+        const position = findNextAvailableSpot(occupiedPositions);
 
         if (!position) {
             alert('No space available for signatures');
@@ -200,6 +220,16 @@ function initializeApp() {
     // Create a tile source for the grid
     function createGridTileSource() {
         const tileSize = 512;
+        const signatureImages = new Map(); // Cache for loaded signature images
+        
+        // Preload signature images
+        exampleSignatures.forEach(signature => {
+            if (signature.data && !signatureImages.has(signature.id)) {
+                const img = new Image();
+                img.src = signature.data;
+                signatureImages.set(signature.id, img);
+            }
+        });
         
         return {
             width: BOARD_WIDTH,
@@ -263,6 +293,12 @@ function initializeApp() {
                         ctx.roundRect(sigX, sigY, signature.width, signature.height, 4);
                         ctx.fill();
                         ctx.stroke();
+
+                        // Draw the signature image if it's loaded
+                        const img = signatureImages.get(signature.id);
+                        if (img && img.complete) {
+                            ctx.drawImage(img, sigX, sigY, signature.width, signature.height);
+                        }
                     }
                 });
                 
