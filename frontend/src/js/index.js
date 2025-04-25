@@ -37,6 +37,7 @@ let BOARD_WIDTH;
 let BOARD_HEIGHT;
 let gridCoordinates;
 let viewer;
+let flippedSignatures = new Set(); // Track flipped signatures
 
 // Function to find the next available spot in the grid
 function findNextAvailableSpot(occupiedPositions) {
@@ -56,6 +57,341 @@ function findNextAvailableSpot(occupiedPositions) {
         }
     }
     return null; // No available spots
+}
+
+// Function to toggle signature flip state
+function toggleSignatureFlip(signatureId) {
+    if (flippedSignatures.has(signatureId)) {
+        flippedSignatures.delete(signatureId);
+    } else {
+        flippedSignatures.add(signatureId);
+    }
+    
+    // Find the signature that was clicked
+    const signature = exampleSignatures.find(sig => sig.id === signatureId);
+    if (!signature) return;
+    
+    // Calculate the position of the signature
+    const { x, y } = gridCoordinates.getCenteredSignaturePosition(
+        signature.gridPosition.col,
+        signature.gridPosition.row,
+        signature.width,
+        signature.height
+    );
+
+    // Calculate fixed font size based on viewport
+    const zoom = viewer.viewport.getZoom();
+    const baseFontSize = 14; // Base font size in pixels
+    const fontScale = 1 / zoom;
+    
+    // Remove any existing overlay for this signature
+    const existingOverlay = viewer.overlays.find(overlay => overlay.id === `sig-${signatureId}`);
+    if (existingOverlay) {
+        viewer.overlays.remove(existingOverlay);
+    }
+    
+    // Create a new overlay for the flipped card
+    const overlay = document.createElement('div');
+    overlay.id = `sig-${signatureId}`;
+    overlay.className = 'signature-card';
+    overlay.style.cssText = `
+        width: ${signature.width}px;
+        height: ${signature.height}px;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+    `;
+    
+    if (flippedSignatures.has(signatureId)) {
+        overlay.classList.add('flipped');
+    }
+    
+    // Create front and back of card
+    const front = document.createElement('div');
+    front.className = 'signature-card-front';
+    front.style.cssText = `
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        background-color: ${colorMap[signature.color]};
+    `;
+    
+    const back = document.createElement('div');
+    back.className = 'signature-card-back';
+    back.style.cssText = `
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        background-color: ${colorMap[signature.color]};
+        transform: rotateY(180deg);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    `;
+
+    // Create a fixed-size container for text
+    const textContainer = document.createElement('div');
+    textContainer.style.cssText = `
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform-origin: center;
+        overflow: hidden;
+    `;
+    
+    // Add timestamp and location to back
+    const timestamp = document.createElement('div');
+    timestamp.className = 'timestamp';
+    timestamp.textContent = new Date(signature.timestamp).toLocaleString();
+    timestamp.style.cssText = `
+        color: #000000;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+        font-size: 12px;
+        line-height: 1.2;
+        text-align: center;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        transform-origin: center;
+        width: 90%;
+    `;
+    
+    const location = document.createElement('div');
+    location.className = 'location';
+    location.textContent = 'Location: Unknown';
+    location.style.cssText = `
+        color: #000000;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+        font-size: 10px;
+        line-height: 1.2;
+        text-align: center;
+        white-space: nowrap;
+        transform-origin: center;
+        width: 90%;
+    `;
+    
+    textContainer.appendChild(timestamp);
+    textContainer.appendChild(location);
+    back.appendChild(textContainer);
+    
+    // Add signature image to front if available
+    if (signature.data) {
+        const img = new Image();
+        img.src = signature.data;
+        img.style.cssText = `
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        `;
+        front.appendChild(img);
+    }
+    
+    overlay.appendChild(front);
+    overlay.appendChild(back);
+    
+    // Add the overlay to the viewer with fixed scaling
+    viewer.addOverlay({
+        element: overlay,
+        location: new OpenSeadragon.Rect(x, y, signature.width, signature.height),
+        placement: OpenSeadragon.Placement.CENTER,
+        rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION,
+        checkResize: false
+    });
+}
+
+// Function to load signatures
+function loadSignatures() {
+    try {
+        // Clear any existing images
+        viewer.world.removeAll();
+        
+        // Remove all overlays
+        while (viewer.overlays.length > 0) {
+            viewer.overlays.remove(viewer.overlays[0]);
+        }
+
+        // Add the grid tile source
+        viewer.addTiledImage({
+            tileSource: createGridTileSource(),
+            x: 0,
+            y: 0,
+            width: BOARD_WIDTH
+        });
+
+        // Add viewport constraints
+        viewer.viewport.applyConstraints({
+            minZoomLevel: 0.001,
+            maxZoomLevel: 20,
+            minX: 0,
+            minY: 0,
+            maxX: BOARD_WIDTH,
+            maxY: BOARD_HEIGHT
+        });
+
+        // Add home button handler
+        viewer.addHandler('home', function() {
+            showEntireBoard();
+        });
+    } catch (error) {
+        console.error('Error loading signatures:', error);
+    }
+}
+
+// Function to show the entire board
+function showEntireBoard() {
+    viewer.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT), true);
+}
+
+// Function to reset all flipped signatures
+function resetFlippedSignatures() {
+    flippedSignatures.clear();
+    loadSignatures();
+}
+
+// Function to handle click events on the viewer
+function handleViewerClick(event) {
+    const webPoint = viewer.viewport.pointFromPixel(event.position);
+    const viewportPoint = viewer.viewport.viewportToImageCoordinates(webPoint);
+    
+    // Check if click is within any signature
+    for (const signature of exampleSignatures) {
+        const { x, y } = gridCoordinates.getCenteredSignaturePosition(
+            signature.gridPosition.col,
+            signature.gridPosition.row,
+            signature.width,
+            signature.height
+        );
+        
+        if (viewportPoint.x >= x && 
+            viewportPoint.x <= x + signature.width &&
+            viewportPoint.y >= y && 
+            viewportPoint.y <= y + signature.height) {
+            toggleSignatureFlip(signature.id);
+            break;
+        }
+    }
+}
+
+// Function to create grid tile source
+function createGridTileSource() {
+    const tileSize = 512;
+    const signatureImages = new Map();
+    
+    // Preload signature images
+    exampleSignatures.forEach(signature => {
+        if (signature.data && !signatureImages.has(signature.id)) {
+            const img = new Image();
+            img.src = signature.data;
+            signatureImages.set(signature.id, img);
+        }
+    });
+    
+    return {
+        width: BOARD_WIDTH,
+        height: BOARD_HEIGHT,
+        tileSize: tileSize,
+        tileOverlap: 0,
+        getTileUrl: function(level, x, y) {
+            const canvas = document.createElement('canvas');
+            canvas.width = tileSize;
+            canvas.height = tileSize;
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate tile boundaries
+            const startX = x * tileSize;
+            const startY = y * tileSize;
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            // Draw vertical lines
+            for (let col = 0; col <= gridSize.cols; col++) {
+                const x = col * CELL_WIDTH - startX;
+                if (x >= 0 && x < tileSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, tileSize);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw horizontal lines
+            for (let row = 0; row <= gridSize.rows; row++) {
+                const y = row * CELL_HEIGHT - startY;
+                if (y >= 0 && y < tileSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(tileSize, y);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw signatures in this tile
+            exampleSignatures.forEach(signature => {
+                const { x, y } = gridCoordinates.getCenteredSignaturePosition(
+                    signature.gridPosition.col,
+                    signature.gridPosition.row,
+                    signature.width,
+                    signature.height
+                );
+                const sigX = x - startX;
+                const sigY = y - startY;
+                
+                // Only draw if the signature is in this tile
+                if (sigX >= 0 && sigX < tileSize && sigY >= 0 && sigY < tileSize) {
+                    const isFlipped = flippedSignatures.has(signature.id);
+                    const cardColor = colorMap[signature.color];
+                    
+                    if (isFlipped) {
+                        // Draw back of card with matching color
+                        ctx.fillStyle = cardColor;
+                        ctx.strokeStyle = '#e0e0e0';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.rect(sigX, sigY, signature.width, signature.height);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Draw timestamp and location with contrasting text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '14px Arial';
+                        ctx.textAlign = 'center';
+                        const timestamp = new Date(signature.timestamp).toLocaleString();
+                        ctx.fillText(timestamp, sigX + signature.width/2, sigY + signature.height/2 - 8);
+                        
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '12px Arial';
+                        ctx.fillText('Location: Unknown', sigX + signature.width/2, sigY + signature.height/2 + 8);
+                    } else {
+                        // Draw front of card
+                        ctx.fillStyle = cardColor;
+                        ctx.strokeStyle = '#e0e0e0';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.rect(sigX, sigY, signature.width, signature.height);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Draw the signature image
+                        const img = signatureImages.get(signature.id);
+                        if (img && img.complete) {
+                            ctx.drawImage(img, sigX, sigY, signature.width, signature.height);
+                        }
+                    }
+                }
+            });
+            
+            return canvas.toDataURL();
+        }
+    };
 }
 
 // Initialize the application
@@ -244,136 +580,8 @@ function initializeApp() {
         hideModal(confirmationModal);
     });
 
-    // Create a tile source for the grid
-    function createGridTileSource() {
-        const tileSize = 512;
-        const signatureImages = new Map(); // Cache for loaded signature images
-        
-        // Preload signature images
-        exampleSignatures.forEach(signature => {
-            if (signature.data && !signatureImages.has(signature.id)) {
-                const img = new Image();
-                img.src = signature.data;
-                signatureImages.set(signature.id, img);
-            }
-        });
-        
-        return {
-            width: BOARD_WIDTH,
-            height: BOARD_HEIGHT,
-            tileSize: tileSize,
-            tileOverlap: 0,
-            getTileUrl: function(level, x, y) {
-                const canvas = document.createElement('canvas');
-                canvas.width = tileSize;
-                canvas.height = tileSize;
-                const ctx = canvas.getContext('2d');
-                
-                // Calculate tile boundaries
-                const startX = x * tileSize;
-                const startY = y * tileSize;
-                
-                // Draw grid lines
-                ctx.strokeStyle = '#e0e0e0';
-                ctx.lineWidth = 1;
-                
-                // Draw vertical lines
-                for (let col = 0; col <= gridSize.cols; col++) {
-                    const x = col * CELL_WIDTH - startX;
-                    if (x >= 0 && x < tileSize) {
-                        ctx.beginPath();
-                        ctx.moveTo(x, 0);
-                        ctx.lineTo(x, tileSize);
-                        ctx.stroke();
-                    }
-                }
-                
-                // Draw horizontal lines
-                for (let row = 0; row <= gridSize.rows; row++) {
-                    const y = row * CELL_HEIGHT - startY;
-                    if (y >= 0 && y < tileSize) {
-                        ctx.beginPath();
-                        ctx.moveTo(0, y);
-                        ctx.lineTo(tileSize, y);
-                        ctx.stroke();
-                    }
-                }
-                
-                // Draw signatures in this tile
-                exampleSignatures.forEach(signature => {
-                    const { x, y } = gridCoordinates.getCenteredSignaturePosition(
-                        signature.gridPosition.col, 
-                        signature.gridPosition.row,
-                        signature.width,
-                        signature.height
-                    );
-                    const sigX = x - startX;
-                    const sigY = y - startY;
-                    
-                    // Only draw if the signature is in this tile
-                    if (sigX >= 0 && sigX < tileSize && sigY >= 0 && sigY < tileSize) {
-                        // Draw the box with a subtle outline
-                        ctx.fillStyle = colorMap[signature.color];
-                        ctx.strokeStyle = '#e0e0e0'; // Match grid line color
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.rect(sigX, sigY, signature.width, signature.height); // Remove rounded corners
-                        ctx.fill();
-                        ctx.stroke();
-
-                        // Draw the signature image if it's loaded
-                        const img = signatureImages.get(signature.id);
-                        if (img && img.complete) {
-                            ctx.drawImage(img, sigX, sigY, signature.width, signature.height);
-                        }
-                    }
-                });
-                
-                return canvas.toDataURL();
-            }
-        };
-    }
-
-    // Function to show the entire board
-    function showEntireBoard() {
-        viewer.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT), true);
-    }
-
-    // Load signatures
-    function loadSignatures() {
-        try {
-            // Clear any existing images
-            viewer.world.removeAll();
-
-            // Add the grid tile source
-            viewer.addTiledImage({
-                tileSource: createGridTileSource(),
-                x: 0,
-                y: 0,
-                width: BOARD_WIDTH
-            });
-
-            // Add viewport constraints
-            viewer.viewport.applyConstraints({
-                minZoomLevel: 0.001,
-                maxZoomLevel: 20,
-                minX: 0,
-                minY: 0,
-                maxX: BOARD_WIDTH,
-                maxY: BOARD_HEIGHT
-            });
-
-            // Show the entire board
-            showEntireBoard();
-
-            // Add home button handler
-            viewer.addHandler('home', function() {
-                showEntireBoard();
-            });
-        } catch (error) {
-            console.error('Error loading signatures:', error);
-        }
-    }
+    // Add click handler to viewer
+    viewer.addHandler('canvas-click', handleViewerClick);
 
     // Handle window resize
     window.addEventListener('resize', function() {

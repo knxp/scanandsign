@@ -1,0 +1,16 @@
+{
+  "name": "scanandsign-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API for Scan and Sign",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/identity": "^3.3.0"
+  },
+  "devDependencies": {
+    "@azure/functions": "^4.0.0"
+  }
+} 
