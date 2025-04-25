@@ -387,6 +387,31 @@ function initializeApp() {
         }
     });
 
+    // Handle FAQ toggles
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            // Close all other FAQs
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            // Toggle current FAQ
+            item.classList.toggle('active');
+        });
+    });
+
+    // Close FAQ when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.faq-item')) {
+            faqItems.forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+    });
+
     // Initial setup
     resizeCanvas();
     loadSignatures();
