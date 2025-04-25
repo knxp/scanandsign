@@ -103,10 +103,13 @@ function initializeApp() {
     // Modal elements
     const welcomeModal = document.getElementById('welcome-modal');
     const signatureModal = document.getElementById('signature-modal');
+    const confirmationModal = document.getElementById('confirmation-modal');
     const yesButton = document.getElementById('yes-button');
     const noButton = document.getElementById('no-button');
     const clearButton = document.getElementById('clear-signature');
     const submitButton = document.getElementById('submit-signature');
+    const confirmSubmitButton = document.getElementById('confirm-submit');
+    const cancelSubmitButton = document.getElementById('cancel-submit');
     const colorOptions = document.querySelectorAll('.color-option');
 
     // Selected color
@@ -207,6 +210,10 @@ function initializeApp() {
             return;
         }
 
+        showModal(confirmationModal);
+    });
+
+    confirmSubmitButton.addEventListener('click', () => {
         const signatureData = signaturePad.toDataURL();
         const occupiedPositions = exampleSignatures.map(sig => sig.gridPosition);
         const position = findNextAvailableSpot(occupiedPositions);
@@ -228,8 +235,13 @@ function initializeApp() {
 
         exampleSignatures.push(signature);
         signaturePad.clear();
+        hideModal(confirmationModal);
         hideModal(signatureModal);
         loadSignatures();
+    });
+
+    cancelSubmitButton.addEventListener('click', () => {
+        hideModal(confirmationModal);
     });
 
     // Create a tile source for the grid

@@ -128,11 +128,11 @@ main {
     gap: 12px;
 }
 
+/* Button styles */
 button {
     padding: 12px 24px;
     border: none;
     border-radius: 980px;
-    background-color: #0071e3;
     color: #ffffff;
     font-size: 17px;
     font-weight: 400;
@@ -141,23 +141,60 @@ button {
 }
 
 button:hover {
-    background-color: #0077ed;
     transform: scale(1.02);
 }
 
+/* Primary button */
+.btn.primary {
+    background-color: #0071e3;
+}
+
+.btn.primary:hover {
+    background-color: #0077ed;
+}
+
+/* Secondary button */
+.btn.secondary {
+    background-color: #86868b;
+}
+
+.btn.secondary:hover {
+    background-color: #6e6e73;
+}
+
+/* Yes button */
 .yes-button {
-    background-color: #34c759;
+    background-color: #0071e3;
 }
 
 .yes-button:hover {
-    background-color: #30b753;
+    background-color: #0071e3;
 }
 
+/* No button */
 .no-button {
     background-color: #86868b;
 }
 
 .no-button:hover {
+    background-color: #6e6e73;
+}
+
+/* Confirm submit button */
+.confirm-submit {
+    background-color: #0071e3;
+}
+
+.confirm-submit:hover {
+    background-color: #0071e3;
+}
+
+/* Cancel submit button */
+.cancel-submit {
+    background-color: #86868b;
+}
+
+.cancel-submit:hover {
     background-color: #6e6e73;
 }
 
@@ -194,6 +231,30 @@ button:hover {
     border: 2px solid #ffffff;
     cursor: pointer;
     transition: transform 0.2s ease;
+}
+
+.color-option[data-color="red"] {
+    background-color: #ff6b6b;
+}
+
+.color-option[data-color="blue"] {
+    background-color: #4dabf7;
+}
+
+.color-option[data-color="yellow"] {
+    background-color: #ffd43b;
+}
+
+.color-option[data-color="green"] {
+    background-color: #51cf66;
+}
+
+.color-option[data-color="pink"] {
+    background-color: #f783ac;
+}
+
+.color-option[data-color="purple"] {
+    background-color: #cc5de8;
 }
 
 .color-option:hover {
@@ -495,4 +556,45 @@ footer {
 
 .color-option.purple {
     background-color: #cc5de8;
+}
+
+/* Location input */
+.location-section {
+    margin: 1rem 0;
+}
+
+.location-header {
+    font-size: 14px;
+    color: #86868b;
+    margin-bottom: 8px;
+    font-weight: 400;
+}
+
+.location-input {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0;
+    justify-content: center;
+}
+
+.location-field {
+    flex: 0.3;
+    max-width: 120px;
+    padding: 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    font-size: 17px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    color: #1d1d1f;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+.location-field:focus {
+    outline: none;
+    border-color: #0071e3;
+}
+
+.location-field::placeholder {
+    color: #86868b;
 } 

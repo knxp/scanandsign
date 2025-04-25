@@ -81,6 +81,10 @@ The Scan and Sign project is a digital signature board application that allows u
    - [ ] Create modal dialogs for user interaction
    - [ ] Implement color selection for signatures
    - [ ] Design quilt-like signature board layout
+   - [ ] Add confirmation dialog for signature submission
+   - [ ] Add location input (city/state) to signature form
+   - [ ] Implement FAQ section in welcome screen
+   - [ ] Add signature card flip animation with details
 
 3. **Backend Development**
    - [ ] Set up Azure Functions
@@ -119,6 +123,10 @@ The Scan and Sign project is a digital signature board application that allows u
    - [ ] Implement modal dialogs for user interaction
    - [ ] Add color selection for signatures
    - [ ] Design quilt-like signature board layout
+   - [ ] Add confirmation dialog for signature submission
+   - [ ] Add location input to signature form
+   - [ ] Implement FAQ section in welcome screen
+   - [ ] Add signature card flip animation with details
 
 2. **Local Development Setup**
    - Using SQLite for local testing
@@ -134,12 +142,18 @@ The Scan and Sign project is a digital signature board application that allows u
 6. Implement modal dialogs for user interaction
 7. Add color selection for signatures
 8. Design quilt-like signature board layout
+9. Add confirmation dialog for signature submission
+10. Add location input to signature form
+11. Implement FAQ section in welcome screen
+12. Add signature card flip animation with details
 
 ## Executor's Feedback or Assistance Requests
 1. Node.js and npm need to be installed before proceeding
 2. Frontend structure is ready but dependencies need to be installed
 3. Backend development can begin after Node.js installation
 4. Need to implement access control based on QR code scanning
+5. Need to design FAQ questions and answers
+6. Need to design signature card flip animation
 
 ## Lessons
 1. Project structure follows standard Node.js/Azure Functions layout
@@ -148,4 +162,49 @@ The Scan and Sign project is a digital signature board application that allows u
 4. Project is in very early stages with empty implementation directories
 5. Using SQLite for local development before moving to production database
 6. Always verify Node.js installation before starting npm commands
-7. Mobile-first design is essential for QR code scanning applications 
+7. Mobile-first design is essential for QR code scanning applications
+
+## New Feature: Submit Confirmation Dialog
+### Background
+Users need a way to confirm their signature submission before it's permanently added to the board. This helps prevent accidental submissions and gives users a chance to review their signature.
+
+### Success Criteria
+1. When user clicks "Submit" on signature input:
+   - Current signature modal closes
+   - New confirmation modal appears
+   - User sees their signature preview
+   - User can choose to confirm or cancel
+2. If user confirms:
+   - Signature is saved to board
+   - Confirmation modal closes
+   - User returns to main board view
+3. If user cancels:
+   - Confirmation modal closes
+   - User returns to signature input modal
+   - Original signature is preserved
+
+### Task Breakdown
+1. **Add Confirmation Modal HTML**
+   - [ ] Create new modal div with id "confirmation-modal"
+   - [ ] Add title "Confirm Submission"
+   - [ ] Add message "Are you sure you want to submit your signature?"
+   - [ ] Add "Yes, Submit" and "No, Cancel" buttons
+   - [ ] Style modal to match existing design
+
+2. **Update JavaScript Event Handlers**
+   - [ ] Modify submit button click handler to show confirmation modal
+   - [ ] Add confirm button click handler to save signature
+   - [ ] Add cancel button click handler to return to signature input
+   - [ ] Ensure proper modal transitions
+
+3. **Test and Verify**
+   - [ ] Test modal transitions
+   - [ ] Verify signature preservation on cancel
+   - [ ] Verify signature saving on confirm
+   - [ ] Test on mobile devices
+
+### Implementation Notes
+- Keep the confirmation modal simple and focused
+- Use existing modal styles for consistency
+- Ensure smooth transitions between modals
+- Preserve signature data during the confirmation process 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan and Sign - Digital Signature Board</title>
-    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/main.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1.0/build/openseadragon/openseadragon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@4.2.1/dist/fp.min.js"></script>
@@ -40,25 +40,44 @@
     <!-- Signature Modal -->
     <div id="signature-modal" class="modal">
         <div class="modal-content">
-            <h2>Your Signature</h2>
+            <h2>Leave Your Signature</h2>
             <div class="signature-container">
                 <canvas id="signature-pad"></canvas>
-                <div class="color-options">
-                    <button class="color-option" data-color="red" style="background-color: #ff6b6b;"></button>
-                    <button class="color-option" data-color="blue" style="background-color: #4dabf7;"></button>
-                    <button class="color-option" data-color="yellow" style="background-color: #ffd43b;"></button>
-                    <button class="color-option" data-color="green" style="background-color: #51cf66;"></button>
-                    <button class="color-option" data-color="pink" style="background-color: #f783ac;"></button>
-                    <button class="color-option" data-color="purple" style="background-color: #cc5de8;"></button>
+            </div>
+            <div class="color-options">
+                <div class="color-option" data-color="red"></div>
+                <div class="color-option" data-color="blue"></div>
+                <div class="color-option" data-color="yellow"></div>
+                <div class="color-option" data-color="green"></div>
+                <div class="color-option" data-color="pink"></div>
+                <div class="color-option" data-color="purple"></div>
+            </div>
+            <div class="location-section">
+                <h3 class="location-header">Where are you? (Optional)</h3>
+                <div class="location-input">
+                    <input type="text" id="city-input" placeholder="City" class="location-field">
+                    <input type="text" id="state-input" placeholder="State" class="location-field">
                 </div>
-                <div class="signature-controls">
-                    <button id="clear-signature">Clear</button>
-                    <button id="submit-signature">Submit</button>
-                </div>
+            </div>
+            <div class="button-group">
+                <button id="clear-signature" class="btn secondary">Clear</button>
+                <button id="submit-signature" class="btn primary">Submit</button>
             </div>
         </div>
     </div>
 
-    <script type="module" src="/src/js/index.js"></script>
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Submission</h2>
+            <p>Is it pretty enough?</p>
+            <div class="button-group">
+                <button id="cancel-submit" class="cancel-submit">Nope</button>
+                <button id="confirm-submit" class="confirm-submit">Yep</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/js/index.js"></script>
 </body>
 </html> 
